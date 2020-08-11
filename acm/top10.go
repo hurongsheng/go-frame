@@ -9,7 +9,7 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	deep, max := 100000, 10000
+	deep, max := 10000, 10000
 	fmt.Printf("time: %v deep: %v \n", time.Now().Unix(), deep)
 	arr := randData(deep, max)
 	fmt.Printf("time: %v deep: %v \n", time.Now().Unix(), deep)

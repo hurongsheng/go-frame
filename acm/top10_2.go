@@ -23,6 +23,7 @@ func main() {
 	left := deep * max
 	top10Part := make([]int, 0)
 	lock := sync.Mutex{}
+	sw := sync.WaitGroup{}
 	for flag || !flagDown {
 		select {
 		case arr := <-chData:
@@ -31,6 +32,8 @@ func main() {
 			}
 			fmt.Printf("left(%v,%v)  %+v\n", left, len(arr), arr)
 			go func(arr []int) {
+				sw.Add(1)
+				defer sw.Done()
 				top10Part = append(top10Part, getTop10Array(arr)...)
 				lock.Lock()
 				left = left - max + 10
@@ -49,6 +52,7 @@ func main() {
 			}
 		}
 	}
+	sw.Wait()
 	fmt.Printf("left(%v,%v)  %+v\n", left, len(top10Part), top10Part)
 	top10Part = getTop10Array(top10Part)
 	fmt.Printf("time: %v last top10Part %+v\n", time.Now().Unix(), top10Part)
