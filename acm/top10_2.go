@@ -4,47 +4,37 @@ import (
 	"fmt"
 	"frame/util"
 	"math/rand"
-	"sync"
 	"time"
 )
 
 // 给定10亿个随机数，取其中最大的10个值
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	deep, max := 10000, 100000
+	deep, max := 1000000, 10000
 	startAt := time.Now().Unix()
 	var chDownAt int64
 	fmt.Printf("time: %v deep: %v \n", time.Now().Unix(), deep)
 	chData := make(chan []int, deep+1)
 	chDown := make(chan bool)
-	randDataToChan(chData, chDown, deep, max)
+	go randDataToChan(chData, chDown, deep, max)
 	fmt.Printf("time: %v deep: %v \n", time.Now().Unix(), deep)
 	flag := true
 	flagDown := false
 	left := deep * max
 	top10Part := make([]int, 0)
-	lock := sync.Mutex{}
-	sw := util.NewLimitedWaitGroup(10)
 	for flag || !flagDown {
 		select {
 		case arr := <-chData:
 			if len(arr) == 0 {
 				flagDown = true
 			}
-			fmt.Printf("left(%v,%v)\r", left, len(arr))
-			go func(arr []int) {
-				sw.Add(1)
-				defer sw.Done()
-				top10Part = append(top10Part, getTop10Array(arr)...)
-				lock.Lock()
-				left = left - max + 10
-				if len(top10Part) >= max {
-					chData <- top10Part[:max]
-					top10Part = top10Part[max:]
-				}
-				lock.Unlock()
-			}(arr)
-
+			//fmt.Printf("left(%v,%v)\r", left, len(arr))
+			top10Part = append(top10Part, getTop10Array(arr)...)
+			left = left - max + 10
+			if len(top10Part) >= max {
+				chData <- top10Part[:max]
+				top10Part = top10Part[max:]
+			}
 		case flagDown = <-chDown:
 			chDownAt = time.Now().Unix()
 		default:
@@ -53,7 +43,6 @@ func main() {
 			}
 		}
 	}
-	sw.Wait()
 	fmt.Printf("left(%v,%v)  %+v\n", left, len(top10Part), top10Part)
 	top10Part = getTop10Array(top10Part)
 	fmt.Printf("time: %v last top10Part %+v\n", time.Now().Unix(), top10Part)
@@ -62,7 +51,8 @@ func main() {
 }
 
 func randDataToChan(chData chan []int, chDown chan bool, deep int, max int) {
-	sw := util.NewLimitedWaitGroup(100)
+	sw := util.NewSportWaitGroup(100)
+	//sw := sync.WaitGroup{}
 	for j := 0; j < deep; j++ {
 		sw.Add(1)
 		go func(j int) {
@@ -73,8 +63,8 @@ func randDataToChan(chData chan []int, chDown chan bool, deep int, max int) {
 	go func() {
 		sw.Wait()
 		chDown <- true
+		fmt.Printf("time: %v rand down", time.Now().Unix())
 	}()
-	fmt.Printf("time: %v rand down", time.Now().Unix())
 }
 
 func getTop10Array(valueArr []int) []int {
