@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"frame/util"
 	"math/rand"
 	"sync"
 	"time"
@@ -10,7 +11,7 @@ import (
 // 给定10亿个随机数，取其中最大的10个值
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	deep, max := 10000, 10000
+	deep, max := 10000, 100000
 	startAt := time.Now().Unix()
 	var chDownAt int64
 	fmt.Printf("time: %v deep: %v \n", time.Now().Unix(), deep)
@@ -23,14 +24,14 @@ func main() {
 	left := deep * max
 	top10Part := make([]int, 0)
 	lock := sync.Mutex{}
-	sw := sync.WaitGroup{}
+	sw := util.NewLimitedWaitGroup(10)
 	for flag || !flagDown {
 		select {
 		case arr := <-chData:
 			if len(arr) == 0 {
 				flagDown = true
 			}
-			fmt.Printf("left(%v,%v)  %+v\n", left, len(arr), arr)
+			fmt.Printf("left(%v,%v)\r", left, len(arr))
 			go func(arr []int) {
 				sw.Add(1)
 				defer sw.Done()
@@ -61,9 +62,9 @@ func main() {
 }
 
 func randDataToChan(chData chan []int, chDown chan bool, deep int, max int) {
-	sw := sync.WaitGroup{}
-	sw.Add(deep)
+	sw := util.NewLimitedWaitGroup(100)
 	for j := 0; j < deep; j++ {
+		sw.Add(1)
 		go func(j int) {
 			defer sw.Done()
 			chData <- randArray2(max, max*deep)
