@@ -4,14 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-
-	"github.com/pkg/errors"
-	"ptapp.cn/util/dlog.v1"
-	"ptapp.cn/util/filter/mtype"
 )
 
 type Api struct {
@@ -73,7 +70,7 @@ func (a *Api) getBytes(ctx context.Context, fields interface{}) ([]byte, error) 
 		}
 		params := url.Values{}
 		for k, v := range mapp {
-			params.Add(k, mtype.GetString(v))
+			params.Add(k, fmt.Sprintf("%v", v))
 		}
 		return []byte(params.Encode()), nil
 	}
@@ -81,7 +78,6 @@ func (a *Api) getBytes(ctx context.Context, fields interface{}) ([]byte, error) 
 	return fieldsByte, nil
 }
 func (a *Api) sendRequest(ctx context.Context, method string, url string, fields interface{}) ([]byte, error) {
-	dl := dlog.FromContext(ctx)
 	fieldsByte, err := a.getBytes(ctx, fields)
 	if err != nil {
 		return nil, err
@@ -101,11 +97,8 @@ func (a *Api) sendRequest(ctx context.Context, method string, url string, fields
 			resp.Body.Close()
 		}()
 
-		dl.V(5).Infof("resp %+v", resp)
 		if resp.StatusCode != 200 {
-			dl.Errorf("status not 200:%+v,%v", resp.StatusCode, resp.Status)
 			bd, err := ioutil.ReadAll(resp.Body)
-			dl.Errorf("status not 200:%+v,%v", string(bd), err)
 			if err == nil {
 				return nil, errors.New(string(bd))
 			}
@@ -130,13 +123,10 @@ func (a *Api) createRequest(ctx context.Context, method string, url string, fiel
 	return req, nil
 }
 func (a *Api) log(ctx context.Context, method string, url string, fields []byte) {
-	dl := dlog.FromContext(ctx)
 	headers := ""
 	for k, v := range a.headers {
 		headers += fmt.Sprintf("-H \"%v:%v\"", k, v)
 	}
-	dl.V(5).Infof("curl %v -X %s %s -d '%v'", headers, method, url, string(fields))
-	dl.V(5).Infof("curl %v", headers)
 }
 func (a *Api) Get(ctx context.Context, url string, fields interface{}) ([]byte, error) {
 	return a.sendRequest(ctx, "GET", url, fields)

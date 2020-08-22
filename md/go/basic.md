@@ -18,3 +18,6 @@
     
     channel 读写都是阻塞的，写设置缓冲区可以不在缓冲区范围内不阻塞
    
+####CSP并发模型
+
+    go的csp模型是基于channel实现的，两个goroutine通过channel来共享内存

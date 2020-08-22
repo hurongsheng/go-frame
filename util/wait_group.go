@@ -47,9 +47,6 @@ func NewLimitedWaitGroup(maxLen int) *waitGroup {
 		maxLen:    maxLen,
 		maxLenCh:  make(chan int, maxLen),
 	}
-	for i := 0; i < wg.maxLen; i++ {
-		wg.maxLenCh <- 0
-	}
 	return wg
 }
 
@@ -67,9 +64,6 @@ func NewSportWaitGroup(maxLen int) *waitGroup {
 		maxLen:    maxLen,
 		maxLenCh:  make(chan int, maxLen),
 	}
-	for i := 0; i < wg.maxLen; i++ {
-		wg.maxLenCh <- 0
-	}
 	wg.SetSpeedMode()
 	wg.runSportMode()
 	return wg
@@ -77,7 +71,7 @@ func NewSportWaitGroup(maxLen int) *waitGroup {
 
 func (w *waitGroup) Add(delta int) {
 	if w.maxLen > 0 {
-		<-w.maxLenCh
+		w.maxLenCh <- 0
 	}
 	go func() {
 		if !w.speedMode.IsOn() {
@@ -92,9 +86,7 @@ func (w *waitGroup) Add(delta int) {
 }
 
 func (w *waitGroup) Done() {
-	if w.maxLen > 0 {
-		w.maxLenCh <- 0
-	}
+	<-w.maxLenCh
 	go func() {
 		if !w.speedMode.IsOn() {
 			return
@@ -170,11 +162,11 @@ func (w *waitGroup) changeMaxLen(len int) {
 	}
 	if now > len {
 		for i := len; i < now; i++ {
-			<-w.maxLenCh
+			w.maxLenCh <- 0
 		}
 	} else {
 		for i := now; i < len; i++ {
-			w.maxLenCh <- 0
+			<-w.maxLenCh
 		}
 	}
 	w.maxLen = len
