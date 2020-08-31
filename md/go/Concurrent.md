@@ -1,5 +1,5 @@
 ###高并发、goroutine
-####go 为什么能做到高并发
+###go 为什么能做到高并发
 
     goroutine是Go并行设计的核心
         - goroutine非常轻量级
@@ -7,7 +7,7 @@
         - 拥有自己的寄存器上下文和栈
         - PGM的调度模型也决定了go有更高的并发性能
         
-####GPM调度模型
+###GPM调度模型
     
     1.操作系统眼里只有进程和线程
     2.goroutine 运行在线程上，分别有，GPM分别代表goroutine,processor和 machine
@@ -20,9 +20,14 @@
     9.同一个P里面的G先进先出
     10.goroutine是抢占式调度，10ms后标识为可抢占的
     
-####不使用锁来保证Golang的并发安全
+###不使用锁来保证Golang的并发安全
 
     sync.mutex
     atomic.value
     redis/数据库等分布式锁
     chan 信号量传递消息控制并发，类似生产者消费者模型
+
+### goroutine和threed有什么区别
+
+    1.创建：申请的栈空间不一样，1MB和2KB。threed是内核级的，goroutine用户级
+    2.切换损耗不一样。threed需要保存各种寄存器，goroutine只需要保存3个寄存器
