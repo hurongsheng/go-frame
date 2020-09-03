@@ -1,5 +1,5 @@
 
-###go指针和unsafe.point和 unitptr的区别
+### go指针和unsafe.point和 unitptr的区别
 
     1.go不同数据类型的指针不能相互赋值，不能比较，不能数学运算
     2.任何类型的指针都可以跟unsafe.point做类型转换
