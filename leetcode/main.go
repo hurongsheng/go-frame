@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	. "frame/leetcode/linkrange"
+	"frame/leetcode/stringrange"
 )
 
 func main() {
@@ -12,9 +13,9 @@ func main() {
 	//
 	//	&ListNode{5, &ListNode{6, &ListNode{4, nil}}},
 	//)
-	print(RemoveNthFromEnd(&ListNode{2, &ListNode{4, &ListNode{3, nil}}}, 1), nil)
-	print(RemoveNthFromEnd(&ListNode{2, &ListNode{4, &ListNode{3, nil}}}, 2), nil)
-	print(RemoveNthFromEnd(&ListNode{2, &ListNode{4, &ListNode{3, nil}}}, 3), nil)
+	//print(RemoveNthFromEnd(&ListNode{2, &ListNode{4, &ListNode{3, nil}}}, 1), nil)
+	//print(RemoveNthFromEnd(&ListNode{2, &ListNode{4, &ListNode{3, nil}}}, 2), nil)
+	//print(RemoveNthFromEnd(&ListNode{2, &ListNode{4, &ListNode{3, nil}}}, 3), nil)
 	//print(LengthOfLongestSubstring("bbbbb"), 1)
 	//print(LengthOfLongestSubstring("abb"), 2)
 	//print(LengthOfLongestSubstring("abc"), 3)
@@ -28,6 +29,7 @@ func main() {
 	//res := LongestCommonPrefix([]string{"flower", "flow", "floght"})
 	//print(intrange.ThreeSumClosest([]int{-1, 0, 1, 2, -1, -4}, 2), 2)
 	//print(intrange.ThreeSumClosest([]int{-1, 2, 1, -4}, 1), 2)
+	print(stringrange.GenerateParenthesis(3), []string{"((()))", "(()())", "(())()", "()(())", "()()()"})
 
 }
 
@@ -43,7 +45,9 @@ func print(i interface{}, eq interface{}) {
 
 		}
 	} else {
-		fmt.Printf("res:%v==%v  %v\n", i, eq, i == eq)
+		fmt.Printf("i  :%v\n", i)
+		fmt.Printf("eq :%v\n", eq)
+		fmt.Printf("res:%v\n", fmt.Sprintf("%+v", i) == fmt.Sprintf("%+v", eq))
 	}
 	fmt.Println("=========")
 	fmt.Println("")
